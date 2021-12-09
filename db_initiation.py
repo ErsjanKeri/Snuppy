@@ -7,7 +7,7 @@ from init_neo import Neo4J
 import json 
 
 
-is_sqlite = False
+is_sqlite = True
 is_mongo =  False
 is_neo4j = False
 
@@ -39,8 +39,10 @@ def init_sqlite():
 
 def init_mongo():
 	print("[+] Initializing pymongo")
-	CONNECTION_STRING = "mongodb+srv://user:realtesting@real.hopxr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+	CONNECTION_STRING = "mongodb://user:realtesting@real-shard-00-00.hopxr.mongodb.net:27017,real-shard-00-01.hopxr.mongodb.net:27017,real-shard-00-02.hopxr.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-tr7l5m-shard-0&authSource=admin&retryWrites=true&w=majority"
 	cluster = pymongo.MongoClient(CONNECTION_STRING)
+
+
 
 	# mongo db
 	
