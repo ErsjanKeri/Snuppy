@@ -1,0 +1,300 @@
+[
+    {
+        "table": "tournament",
+        "columns": {
+            "id": "INTEGER NOT NULL PRIMARY KEY",
+            "name": "TEXT",
+            "date_held": "TEXT"
+        },
+        "neo4j": "\n\n\t\t\t\t\t\t\t\tUNWIND $rows AS row\n\t\t\t\t\t\t\t\tMERGE (c:Tournament {id: row.id, name: row.name, date_held: row.date_held })\n\t\t\t\t\t\t\t\tRETURN count(*) as total\n\n\t\t\t\t\t\t\t  ",
+        "data": [
+            {
+                "id": 1,
+                "name": "Name1",
+                "date_held": "06/03/2021"
+            },
+            {
+                "id": 2,
+                "name": "Name2",
+                "date_held": "10/11/2021"
+            },
+            {
+                "id": 3,
+                "name": "Name3",
+                "date_held": "11/21/2021"
+            }
+        ]
+    },
+    {
+        "table": "person",
+        "columns": {
+            "id": "primary key",
+            "name": "string"
+        },
+        "neo4j": "\n\t\t\t\t\t\t\t\t\tUNWIND $rows AS row\n\t\t\t\t\t\t\t\t\tMERGE (c:Person {id: row.id ,name: row.name})\n\t\t\t\t\t\t\t\t\tRETURN count(*) as total\n\t\t\t\t\t\t\t\t",
+        "data": [
+            {
+                "id": 1,
+                "name": "John S"
+            },
+            {
+                "id": 2,
+                "name": "Jim C"
+            },
+            {
+                "id": 3,
+                "name": "Kevin D"
+            },
+            {
+                "id": 4,
+                "name": "James H"
+            },
+            {
+                "id": 5,
+                "name": "Will F"
+            },
+            {
+                "id": 6,
+                "name": "John M"
+            },
+            {
+                "id": 7,
+                "name": "Steve C"
+            }
+        ]
+    },
+    {
+        "table": "player",
+        "columns": {
+            "id": "INTEGER NOT NULL PRIMARY KEY",
+            "person_id": "INTEGER",
+            "tournament_id": "INTEGER"
+        },
+        "neo4j": "\n\n\t\t\t\t\t\t\t\t\tUNWIND $rows AS row \n\t\t\t\t\t\t\t\t\tMERGE (p:Player {id: row.id}) ON CREATE SET  p.tournament_id = row.tournament_id\n\t\t\t\t\t\t\t\t\t\n\n\t\t\t\t\t\t\t\t\tWITH row, p \n\t\t\t\t\t\t\t\t\tMATCH (t:Tournament {id : row.tournament_id})\n\t\t\t\t\t\t\t\t\tMERGE (p)-[:IN_TOURNAMENT]->(t)\n\n\n\t\t\t\t\t\t\t\t\tWITH row, p\n\t\t\t\t\t\t\t\t\tMATCH (per:Person {id : row.person_id})\n\t\t\t\t\t\t\t\t\tMERGE (p)-[:IS_PERSON]->(per)\n\n\n\t\t\t\t\t\t\t\t\tRETURN count(distinct p) as total\n\n\t\t\t\t\t\t\t\t",
+        "data": [
+            {
+                "id": 1,
+                "person_id": 1,
+                "tournament_id": 1
+            },
+            {
+                "id": 2,
+                "person_id": 2,
+                "tournament_id": 1
+            },
+            {
+                "id": 3,
+                "person_id": 3,
+                "tournament_id": 1
+            },
+            {
+                "id": 4,
+                "person_id": 4,
+                "tournament_id": 1
+            },
+            {
+                "id": 5,
+                "person_id": 4,
+                "tournament_id": 2
+            },
+            {
+                "id": 6,
+                "person_id": 5,
+                "tournament_id": 2
+            },
+            {
+                "id": 7,
+                "person_id": 6,
+                "tournament_id": 2
+            },
+            {
+                "id": 8,
+                "person_id": 7,
+                "tournament_id": 2
+            },
+            {
+                "id": 9,
+                "person_id": 3,
+                "tournament_id": 3
+            },
+            {
+                "id": 10,
+                "person_id": 4,
+                "tournament_id": 3
+            },
+            {
+                "id": 11,
+                "person_id": 1,
+                "tournament_id": 3
+            }
+        ]
+    },
+    {
+        "table": "game",
+        "columns": {
+            "id": "INTEGER NOT NULL PRIMARY KEY",
+            "tournament_id": "INTEGER",
+            "winner": "INTEGER"
+        },
+        "neo4j": "\n\n\t\t\t\t\t\t\t\t\tUNWIND $rows AS row\n\t\t\t\t\t\t\t\t\tMERGE (g:Game {id: row.id})\n\n\n\t\t\t\t\t\t\t\t\tWITH row, g \n\t\t\t\t\t\t\t\t\tMATCH (t:Tournament {id : row.tournament_id})\n\t\t\t\t\t\t\t\t\tMERGE (g)-[:PART_TOURNAMENT]->(t)\n\n\t\t\t\t\t\t\t\t\tWITH row, g\n\t\t\t\t\t\t\t\t\tMATCH (p:Player {id : row.winner})\n\t\t\t\t\t\t\t\t\tMERGE (g)-[:WINNER]->(p)\n\n\t\t\t\t\t\t\t\t\tRETURN count(distinct g) as total\n\n\t\t\t\t\t\t\t\t",
+        "data": [
+            {
+                "id": 1,
+                "tournament_id": 1,
+                "winner": 1
+            },
+            {
+                "id": 2,
+                "tournament_id": 1,
+                "winner": 4
+            },
+            {
+                "id": 3,
+                "tournament_id": 2,
+                "winner": 5
+            },
+            {
+                "id": 4,
+                "tournament_id": 2,
+                "winner": 6
+            },
+            {
+                "id": 5,
+                "tournament_id": 3,
+                "winner": 10
+            }
+        ]
+    },
+    {
+        "table": "bet",
+        "columns": {
+            "id": "INTEGER NOT NULL PRIMARY KEY",
+            "amount": "INTEGER",
+            "cards": "TEXT",
+            "game_id": "INTEGER",
+            "player_id": "INTEGER"
+        },
+        "neo4j": "\n\n\t\t\t\t\t\t\t\tUNWIND $rows AS row\n\t\t\t\t\t\t\t\tMERGE (b:Bet {id : row.id, amount: row.amount, cards : row.cards })\n\n\n\t\t\t\t\t\t\t\tWITH row, b\n\t\t\t\t\t\t\t\tMATCH (g:Game {id : row.game_id})\n\t\t\t\t\t\t\t\tMERGE (b)-[:IN_GAME]->(g)\n\n\t\t\t\t\t\t\t\tWITH row, b \n\t\t\t\t\t\t\t\tMATCH (p:Player {id : row.player_id})\n\t\t\t\t\t\t\t\tMERGE (b)-[:MADE_BY]->(p)\n\n\n\t\t\t\t\t\t\t\tRETURN count(distinct b) as total \n\n\t\t\t\t\t\t\t",
+        "data": [
+            {
+                "id": 1,
+                "amount": 400,
+                "cards": "2 Aces",
+                "game_id": 1,
+                "player_id": 1
+            },
+            {
+                "id": 2,
+                "amount": 100,
+                "cards": "Two Seven",
+                "game_id": 1,
+                "player_id": 2
+            },
+            {
+                "id": 3,
+                "amount": 200,
+                "cards": "Three King",
+                "game_id": 1,
+                "player_id": 3
+            },
+            {
+                "id": 4,
+                "amount": 600,
+                "cards": "Ace Eight",
+                "game_id": 1,
+                "player_id": 4
+            },
+            {
+                "id": 5,
+                "amount": 800,
+                "cards": "2 Aces",
+                "game_id": 2,
+                "player_id": 1
+            },
+            {
+                "id": 6,
+                "amount": 100,
+                "cards": "2 Sixes",
+                "game_id": 2,
+                "player_id": 2
+            },
+            {
+                "id": 7,
+                "amount": 200,
+                "cards": "Three Four",
+                "game_id": 2,
+                "player_id": 3
+            },
+            {
+                "id": 8,
+                "amount": 1400,
+                "cards": "2 Twos",
+                "game_id": 2,
+                "player_id": 4
+            },
+            {
+                "id": 9,
+                "amount": 800,
+                "cards": "2 Aces",
+                "game_id": 3,
+                "player_id": 5
+            },
+            {
+                "id": 10,
+                "amount": 300,
+                "cards": "Eight Nine",
+                "game_id": 3,
+                "player_id": 6
+            },
+            {
+                "id": 11,
+                "amount": 400,
+                "cards": "2 Tens",
+                "game_id": 3,
+                "player_id": 7
+            },
+            {
+                "id": 12,
+                "amount": 800,
+                "cards": "2 Aces",
+                "game_id": 4,
+                "player_id": 6
+            },
+            {
+                "id": 13,
+                "amount": 300,
+                "cards": "Eight Nine",
+                "game_id": 4,
+                "player_id": 7
+            },
+            {
+                "id": 14,
+                "amount": 400,
+                "cards": "2 Tens",
+                "game_id": 4,
+                "player_id": 8
+            },
+            {
+                "id": 15,
+                "amount": 1200,
+                "cards": "2 Aces",
+                "game_id": 5,
+                "player_id": 9
+            },
+            {
+                "id": 16,
+                "amount": 1500,
+                "cards": "2 Kings",
+                "game_id": 5,
+                "player_id": 10
+            },
+            {
+                "id": 17,
+                "amount": 2100,
+                "cards": "2 Tens",
+                "game_id": 5,
+                "player_id": 11
+            }
+        ]
+    }
+]

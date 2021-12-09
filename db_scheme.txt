@@ -1,0 +1,88 @@
+Tournament 
+- id 				-> Primary Key
+- name 				-> String
+- date held  		-> Date
+
+
+Person
+- id 				-> Primary Key
+- name 				-> String
+
+Player
+- id 				-> Primary Key
+- person_id 		-> ForeignKey(Person) id 
+- tournament_id 	-> ForeignKey(Tournament) id 
+
+Game 
+- id 				-> Primary Key
+- tournament_id 	-> ForeignKey(Tournament) id 
+- winner 			-> ForeignKey(Player) id
+
+
+Bet 
+- id 				-> Primary Key
+- amount 			-> Float
+- cards 			-> String
+- game_id 			-> ForeignKey(Game) id
+- player_id			-> ForeignKey(Player) id
+
+
+
+
+1) “Find the name of all players that played in the Oct 19, 2020 
+tournament”
+
+SELECT p.name FROM person p 
+JOIN (SELECT p.person_id person_id FROM player p
+	JOIN tournament t ON p.tournament_id = t.id 
+	WHERE t.date_held = 'Oct 19, 2020') sub 
+ON sub.person_id = p.id 
+
+# 100% CORRECT !!!
+
+2) “What is the most common bet on two aces?”
+
+SELECT * FROM (
+	SELECT amount, count(*) times FROM bet 
+	WHERE cards = 'two aces'
+	GROUP BY amount) sub1 
+WHERE sub1.times = (SELECT max(sub2.times) FROM (
+					SELECT amount, count(*) times FROM bet 
+					WHERE cards = 'two aces'
+					GROUP BY amount) sub2)
+
+# 100% CORRECT !!!
+
+
+
+3) “Which player(s) has
+the most aggressive style of betting (largest average bet)?”
+
+SELECT p.name, max(amount) FROM (
+	SELECT pla.person_id person_id, avg(bet.amount) amount FROM player pla 
+	JOIN bet ON bet.player_id = pla.id 
+	GROUP BY pla.person_id) sub1
+JOIN person p on p.id = sub1.person_id
+
+# 100% correct!!!
+
+
+4) "Which person has bet the most?"
+
+SELECT person.name ,max(sub.amount) FROM  
+	(SELECT play.person_id id, sum(bet.amount) amount FROM  player play
+	JOIN bet ON bet.player_id = play.id 
+	GROUP BY play.id) sub
+JOIN person ON person.id = sub.person_id 
+# 100% correct!!!
+
+
+5) "Which person has won most games?" 
+
+SELECT p.name, max(sub.times) FROM 
+	(SELECT pla.person_id person_id, count(*) times FROM player pla 
+	JOIN game g ON g.winner = pla.id
+	GROUP BY pla.person_id) sub
+JOIN person p on p.id = sub.person_id
+
+
